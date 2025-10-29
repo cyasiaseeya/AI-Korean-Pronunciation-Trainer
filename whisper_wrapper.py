@@ -6,13 +6,19 @@ import numpy as np
 
 class WhisperASRModel(IASRModel):
     def __init__(self, model_name="openai/whisper-base"):
-        self.asr = pipeline("automatic-speech-recognition", model=model_name, return_timestamps="word")
+        # 자동 감지를 건너뛰고 처리 속도를 높이기 위해 한국어로 초기화
+        self.asr = pipeline(
+            "automatic-speech-recognition", 
+            model=model_name, 
+            return_timestamps="word",
+            generate_kwargs={"language": "korean", "task": "transcribe"}
+        )
         self._transcript = ""
         self._word_locations = []
         self.sample_rate = 16000
 
     def processAudio(self, audio:Union[np.ndarray, torch.Tensor]):
-        # 'audio' can be a path to a file or a numpy array of audio samples.
+        # 'audio'는 파일 경로 또는 오디오 샘플의 numpy 배열일 수 있습니다.
         if isinstance(audio, torch.Tensor):
             audio = audio.detach().cpu().numpy()
         result = self.asr(audio[0])

@@ -1,10 +1,14 @@
+"""
+한국어 발음 트레이너 - 핵심 평가 로직
 
+녹음된 오디오를 처리하고, Whisper ASR을 사용하여 전사하며,
+IPA 음소로 변환하고, 발음 정확도를 계산합니다.
+"""
 import torch
 import numpy as np
 import models as mo
 import WordMetrics
 import WordMatching as wm
-import epitran
 import ModelInterfaces as mi
 import AIModels
 import RuleBasedModels
@@ -16,13 +20,10 @@ def getTrainer(language: str):
 
     asr_model = mo.getASRModel(language,use_whisper=True)
     
-    if language == 'de':
-        phonem_converter = RuleBasedModels.EpitranPhonemConverter(
-            epitran.Epitran('deu-Latn'))
-    elif language == 'en':
-        phonem_converter = RuleBasedModels.EngPhonemConverter()
+    if language == 'ko':
+        phonem_converter = RuleBasedModels.KoreanPhonemConverter()
     else:
-        raise ValueError('Language not implemented')
+        raise ValueError('한국어만 지원됩니다')
 
     trainer = PronunciationTrainer(
         asr_model, phonem_converter)
@@ -73,25 +74,25 @@ class PronunciationTrainer:
         intonations = intonations/torch.mean(intonations)
         return intonations
 
-    ##################### ASR Functions ###########################
+    ##################### ASR 함수 ###########################
 
     def processAudioForGivenText(self, recordedAudio: torch.Tensor = None, real_text=None):
 
         start = time.time()
         recording_transcript, recording_ipa, word_locations = self.getAudioTranscript(
             recordedAudio)
-        print('Time for NN to transcript audio: ', str(time.time()-start))
+        print('NN 오디오 전사 시간: ', str(time.time()-start))
 
         start = time.time()
         real_and_transcribed_words, real_and_transcribed_words_ipa, mapped_words_indices = self.matchSampleAndRecordedWords(
             real_text, recording_transcript)
-        print('Time for matching transcripts: ', str(time.time()-start))
+        print('전사 매칭 시간: ', str(time.time()-start))
 
         start_time, end_time = self.getWordLocationsFromRecordInSeconds(
             word_locations, mapped_words_indices)
 
         pronunciation_accuracy, current_words_pronunciation_accuracy = self.getPronunciationAccuracy(
-            real_and_transcribed_words)  # _ipa
+            real_and_transcribed_words)  # _ipa 사용
 
         pronunciation_categories = self.getWordsPronunciationCategory(
             current_words_pronunciation_accuracy)
@@ -129,9 +130,9 @@ class PronunciationTrainer:
                                   [1])/self.sampling_rate)
         return ' '.join([str(time) for time in start_time]), ' '.join([str(time) for time in end_time])
 
-    ##################### END ASR Functions ###########################
+    ##################### ASR 함수 종료 ###########################
 
-    ##################### Evaluation Functions ###########################
+    ##################### 평가 함수 ###########################
     def matchSampleAndRecordedWords(self, real_text, recorded_transcript):
         words_estimated = recorded_transcript.split()
 

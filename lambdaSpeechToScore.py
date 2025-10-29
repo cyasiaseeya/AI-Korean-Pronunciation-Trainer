@@ -14,8 +14,7 @@ import io
 import tempfile
 
 trainer_SST_lambda = {}
-trainer_SST_lambda['de'] = pronunciationTrainer.getTrainer("de")
-trainer_SST_lambda['en'] = pronunciationTrainer.getTrainer("en")
+trainer_SST_lambda['ko'] = pronunciationTrainer.getTrainer("ko")
 
 transform = Resample(orig_freq=48000, new_freq=16000)
 
@@ -89,7 +88,7 @@ def lambda_handler(event, context):
 
     pair_accuracy_category = ' '.join(
         [str(category) for category in result['pronunciation_categories']])
-    print('Time to post-process results: ', str(time.time()-start))
+    print('결과 후처리 시간: ', str(time.time()-start))
 
     res = {'real_transcript': result['recording_transcript'],
            'ipa_transcript': result['recording_ipa'],
@@ -107,9 +106,9 @@ def lambda_handler(event, context):
 
 
 def audioread_load(path, offset=0.0, duration=None, dtype=np.float32):
-    """Load an audio buffer using audioread.
+    """audioread를 사용하여 오디오 버퍼를 로드합니다.
 
-    This loads one block at a time, and then concatenates the results.
+    한 번에 한 블록씩 로드한 다음 결과를 연결합니다.
     """
 
     y = []
@@ -133,23 +132,23 @@ def audioread_load(path, offset=0.0, duration=None, dtype=np.float32):
             n = n + len(frame)
 
             if n < s_start:
-                # offset is after the current frame
-                # keep reading
+                # 오프셋이 현재 프레임 이후에 있음
+                # 계속 읽기
                 continue
 
             if s_end < n_prev:
-                # we're off the end.  stop reading
+                # 끝을 벗어났습니다. 읽기 중지
                 break
 
             if s_end < n:
-                # the end is in this frame.  crop.
+                # 끝이 이 프레임에 있습니다. 자르기
                 frame = frame[: s_end - n_prev]
 
             if n_prev <= s_start <= n:
-                # beginning is in this frame
+                # 시작이 이 프레임에 있습니다
                 frame = frame[(s_start - n_prev):]
 
-            # tack on the current frame
+            # 현재 프레임을 추가
             y.append(frame)
 
     if y:
@@ -161,36 +160,35 @@ def audioread_load(path, offset=0.0, duration=None, dtype=np.float32):
 
     return y, sr_native
 
-# From Librosa
+# Librosa에서 가져옴
 
 
 def buf_to_float(x, n_bytes=2, dtype=np.float32):
-    """Convert an integer buffer to floating point values.
-    This is primarily useful when loading integer-valued wav data
-    into numpy arrays.
+    """정수 버퍼를 부동 소수점 값으로 변환합니다.
+    이것은 주로 정수 값 wav 데이터를 numpy 배열로 로드할 때 유용합니다.
 
     Parameters
     ----------
     x : np.ndarray [dtype=int]
-        The integer-valued data buffer
+        정수 값 데이터 버퍼
 
     n_bytes : int [1, 2, 4]
-        The number of bytes per sample in ``x``
+        ``x``의 샘플당 바이트 수
 
     dtype : numeric type
-        The target output type (default: 32-bit float)
+        대상 출력 유형 (기본값: 32비트 부동 소수점)
 
     Returns
     -------
     x_float : np.ndarray [dtype=float]
-        The input data buffer cast to floating point
+        부동 소수점으로 캐스팅된 입력 데이터 버퍼
     """
 
-    # Invert the scale of the data
+    # 데이터의 스케일을 반전
     scale = 1.0 / float(1 << ((8 * n_bytes) - 1))
 
-    # Construct the format string
+    # 형식 문자열 구성
     fmt = "<i{:d}".format(n_bytes)
 
-    # Rescale and format the data buffer
+    # 데이터 버퍼를 재조정하고 형식화
     return scale * np.frombuffer(x, fmt).astype(dtype)

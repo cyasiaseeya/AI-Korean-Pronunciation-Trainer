@@ -1,18 +1,21 @@
--f https://download.pytorch.org/whl/torch_stable.html
+# Core ML frameworks
 torch 
 torchaudio 
+transformers
+
+# Audio processing
 soundfile 
-omegaconf
-epitran 
 audioread
-requests
+
+# Phoneme conversion
+epitran 
+
+# Word alignment
 dtwalign
-eng_to_ipa
+
+# Data handling
 pandas
+
+# Web framework
 flask
 flask_cors
-pickle-mixin
-sqlalchemy
-transformers
-sentencepiece
-transformers

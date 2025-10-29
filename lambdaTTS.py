@@ -1,46 +1,25 @@
+"""
+한국어 발음 트레이너를 위한 텍스트 음성 변환 핸들러.
 
-import models
-import soundfile as sf
+참고: 한국어 TTS는 브라우저의 Web Speech API(speechSynthesis)로 처리됩니다.
+이 엔드포인트는 한국어에는 사용되지 않지만 API 호환성을 위해 유지됩니다.
+"""
 import json
-import AIModels
-#from flask import Response
-import utilsFileIO
-import os
-import base64
-
-sampling_rate = 16000
-model_TTS_lambda = AIModels.NeuralTTS(models.getTTSModel('de'), sampling_rate)
 
 
 def lambda_handler(event, context):
-
-    body = json.loads(event['body'])
-
-    text_string = body['value']
-
-    linear_factor = 0.2
-    audio = model_TTS_lambda.getAudioFromSentence(
-        text_string).detach().numpy()*linear_factor
-    random_file_name = utilsFileIO.generateRandomString(20)+'.wav'
-
-    sf.write('./'+random_file_name, audio, 16000)
-
-    with open(random_file_name, "rb") as f:
-        audio_byte_array = f.read()
-
-    os.remove(random_file_name)
-
-
+    """
+    TTS 엔드포인트 - 한국어에는 사용되지 않습니다.
+    한국어 TTS는 브라우저의 Web Speech API(speechSynthesis)로 처리됩니다.
+    """
     return {
-        'statusCode': 200,
+        'statusCode': 501,
         'headers': {
             'Access-Control-Allow-Headers': '*',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
         },
-        'body': json.dumps(
-            {
-                "wavBase64": str(base64.b64encode(audio_byte_array))[2:-1],
-            },
-        )
+        'body': json.dumps({
+            "error": "서버 측 TTS는 한국어를 지원하지 않습니다. 브라우저의 speechSynthesis API를 사용합니다.",
+        })
     }

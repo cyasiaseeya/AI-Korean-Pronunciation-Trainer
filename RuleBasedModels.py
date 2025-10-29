@@ -2,39 +2,24 @@ import ModelInterfaces
 import torch
 import numpy as np
 import epitran
-import eng_to_ipa
 
 
 def get_phonem_converter(language: str):
-    if language == 'de':
-        phonem_converter = EpitranPhonemConverter(
-            epitran.Epitran('deu-Latn'))
-    elif language == 'en':
-        phonem_converter = EngPhonemConverter()
+    if language == 'ko':
+        phonem_converter = KoreanPhonemConverter()
     else:
-        raise ValueError('Language not implemented')
+        raise ValueError('한국어만 지원됩니다')
 
     return phonem_converter
 
-class EpitranPhonemConverter(ModelInterfaces.ITextToPhonemModel):
-    word_locations_in_samples = None
-    audio_transcript = None
-
-    def __init__(self, epitran_model) -> None:
-        super().__init__()
-        self.epitran_model = epitran_model
-
-    def convertToPhonem(self, sentence: str) -> str:
-        phonem_representation = self.epitran_model.transliterate(sentence)
-        return phonem_representation
-
-
-class EngPhonemConverter(ModelInterfaces.ITextToPhonemModel):
+class KoreanPhonemConverter(ModelInterfaces.ITextToPhonemModel):
 
     def __init__(self,) -> None:
         super().__init__()
+        # 한국어 IPA 변환에 epitran 사용 (kor-Hang = 한국어 한글)
+        self.epitran_model = epitran.Epitran('kor-Hang')
 
     def convertToPhonem(self, sentence: str) -> str:
-        phonem_representation = eng_to_ipa.convert(sentence)
-        phonem_representation = phonem_representation.replace('*','')
+        # 한국어 한글을 IPA 음성 표현으로 변환
+        phonem_representation = self.epitran_model.transliterate(sentence)
         return phonem_representation

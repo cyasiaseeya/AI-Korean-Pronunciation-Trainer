@@ -1,33 +1,33 @@
 import numpy as np
 
-# ref from https://gitlab.com/-/snippets/1948157
-# For some variants, look here https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Python
+# 참고: https://gitlab.com/-/snippets/1948157
+# 일부 변형은 여기를 참조하세요: https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Python
 
-# Pure python
+# 순수 파이썬
 def edit_distance_python2(a, b):
-    # This version is commutative, so as an optimization we force |a|>=|b|
+    # 이 버전은 가환적이므로 최적화를 위해 |a|>=|b|를 강제합니다
     if len(a) < len(b):
         return edit_distance_python(b, a)
-    if len(b) == 0:  # Can deal with empty sequences faster
+    if len(b) == 0:  # 빈 시퀀스를 더 빠르게 처리할 수 있습니다
         return len(a)
-    # Only two rows are really needed: the one currently filled in, and the previous
+    # 실제로 두 행만 필요합니다: 현재 채워진 행과 이전 행
     distances = []
     distances.append([i for i in range(len(b)+1)])
     distances.append([0 for _ in range(len(b)+1)])
-    # We can prefill the first row:
+    # 첫 번째 행을 미리 채울 수 있습니다:
     costs = [0 for _ in range(3)]
     for i, a_token in enumerate(a, start=1):
-        distances[1][0] += 1  # Deals with the first column.
+        distances[1][0] += 1  # 첫 번째 열을 처리합니다.
         for j, b_token in enumerate(b, start=1):
             costs[0] = distances[1][j-1] + 1
             costs[1] = distances[0][j] + 1
             costs[2] = distances[0][j-1] + (0 if a_token == b_token else 1)
             distances[1][j] = min(costs)
-        # Move to the next row:
+        # 다음 행으로 이동:
         distances[0][:] = distances[1][:]
     return distances[1][len(b)]
 
-#https://stackabuse.com/levenshtein-distance-and-text-similarity-in-python/
+# 출처: https://stackabuse.com/levenshtein-distance-and-text-similarity-in-python/
 def edit_distance_python(seq1, seq2):
     size_x = len(seq1) + 1
     size_y = len(seq2) + 1
@@ -51,5 +51,5 @@ def edit_distance_python(seq1, seq2):
                     matrix[x-1,y-1] + 1,
                     matrix[x,y-1] + 1
                 )
-    #print (matrix)
+    # print (matrix)
     return (matrix[size_x - 1, size_y - 1])

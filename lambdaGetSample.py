@@ -24,7 +24,7 @@ class TextDataset():
 sample_folder = "./databases/"
 lambda_database = {}
 lambda_ipa_converter = {}
-available_languages = ['de', 'en']
+available_languages = ['ko']
 
 for language in available_languages:
     df = pd.read_csv(sample_folder+'data_'+language+'.csv',delimiter=';')
@@ -38,28 +38,16 @@ def lambda_handler(event, context):
 
     body = json.loads(event['body'])
 
-    category = int(body['category'])
-
     language = body['language']
-
-    sample_in_category = False
-
-    while(not sample_in_category):
-        valid_sequence = False
-        while not valid_sequence:
-            try:
-                sample_idx = random.randint(0, len(lambda_database[language]))
-                current_transcript = lambda_database[language][
-                    sample_idx]
-                valid_sequence = True
-            except:
-                pass
-
-        sentence_category = getSentenceCategory(
-            current_transcript[0])
-
-        sample_in_category = (sentence_category ==
-                              category) or category == 0
+    
+    # 프론트엔드에서 요청한 인덱스를 가져옵니다 (제공되지 않으면 기본값 0)
+    sample_idx = int(body.get('index', 0))
+    
+    # 인덱스가 범위 내에 있는지 확인
+    sample_idx = sample_idx % len(lambda_database[language])
+    
+    # 요청된 인덱스의 문장을 가져옵니다
+    current_transcript = lambda_database[language][sample_idx]
 
     translated_trascript = ""
 
@@ -68,14 +56,7 @@ def lambda_handler(event, context):
 
     result = {'real_transcript': current_transcript,
               'ipa_transcript': current_ipa,
-              'transcript_translation': translated_trascript}
+              'transcript_translation': translated_trascript,
+              'total_sentences': len(lambda_database[language])}
 
     return json.dumps(result)
-
-
-def getSentenceCategory(sentence) -> int:
-    number_of_words = len(sentence.split())
-    categories_word_limits = [0, 8, 20, 100000]
-    for category in range(len(categories_word_limits)-1):
-        if number_of_words > categories_word_limits[category] and number_of_words <= categories_word_limits[category+1]:
-            return category+1

@@ -10,23 +10,23 @@ class NeuralASR(ModelInterfaces.IASRModel):
     def __init__(self, model: torch.nn.Module, decoder) -> None:
         super().__init__()
         self.model = model
-        self.decoder = decoder  # Decoder from CTC-outputs to transcripts
+        self.decoder = decoder  # CTC 출력을 전사로 변환하는 디코더
 
     def getTranscript(self) -> str:
-        """Get the transcripts of the process audio"""
-        assert(self.audio_transcript != None,
-               'Can get audio transcripts without having processed the audio')
+        """처리된 오디오의 전사를 가져옵니다"""
+        assert self.audio_transcript is not None, \
+               '오디오를 처리하지 않고는 전사를 가져올 수 없습니다'
         return self.audio_transcript
 
     def getWordLocations(self) -> list:
-        """Get the pair of words location from audio"""
-        assert(self.word_locations_in_samples != None,
-               'Can get word locations without having processed the audio')
+        """오디오에서 단어 위치 쌍을 가져옵니다"""
+        assert self.word_locations_in_samples is not None, \
+               '오디오를 처리하지 않고는 단어 위치를 가져올 수 없습니다'
 
         return self.word_locations_in_samples
 
     def processAudio(self, audio: torch.Tensor):
-        """Process the audio"""
+        """오디오를 처리합니다"""
         audio_length_in_samples = audio.shape[1]
         with torch.inference_mode():
             nn_output = self.model(audio)
@@ -56,7 +56,7 @@ class NeuralTranslator(ModelInterfaces.ITranslationModel):
         self.tokenizer = tokenizer
 
     def translateSentence(self, sentence: str) -> str:
-        """Get the transcripts of the process audio"""
+        """문장을 번역합니다"""
         tokenized_text = self.tokenizer(sentence, return_tensors='pt')
         translation = self.model.generate(**tokenized_text)
         translated_text = self.tokenizer.batch_decode(
