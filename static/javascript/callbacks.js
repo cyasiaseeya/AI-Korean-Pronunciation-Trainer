@@ -185,7 +185,7 @@ const getNextSample = async () => {
           " | Score: " +
           currentScore.toString();
         currentSample += 1;
-        
+
         // 마지막 문장 이후 처음으로 돌아가기
         if (currentSample >= totalSentences) {
           currentSample = 0;
@@ -697,7 +697,9 @@ window.setTTSSpeed = (speed) => {
   }
   ttsSpeed = speed;
   console.log(`TTS speed set to ${speed}`);
-  console.log("Speed guide: 0.1 = very slow, 0.5 = slow, 0.7 = default, 1.0 = normal, 1.5 = fast, 2.0 = very fast");
+  console.log(
+    "Speed guide: 0.1 = very slow, 0.5 = slow, 0.7 = default, 1.0 = normal, 1.5 = fast, 2.0 = very fast",
+  );
 };
 
 // 페이지 로드 시 한국어 음성 초기화
@@ -710,5 +712,7 @@ if (synth.onvoiceschanged !== undefined) {
 changeLanguage("ko", false);
 
 // TTS 속도 조정 방법을 콘솔에 출력
-console.log("To change TTS speed, use: setTTSSpeed(0.5) for slower or setTTSSpeed(1.0) for normal speed");
+console.log(
+  "To change TTS speed, use: setTTSSpeed(0.5) for slower or setTTSSpeed(1.0) for normal speed",
+);
 console.log("Current TTS speed:", ttsSpeed);

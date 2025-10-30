@@ -1,6 +1,8 @@
 # Korean AI Pronunciation Trainer
 
-An AI-powered tool to evaluate and improve your Korean pronunciation. Get objective, real-time feedback on your speaking skills using advanced speech recognition and phonetic analysis.
+An AI-powered tool to evaluate and improve your Korean pronunciation. Get
+objective, real-time feedback on your speaking skills using advanced speech
+recognition and phonetic analysis.
 
 ## Features
 
@@ -36,7 +38,8 @@ python3 webApp.py
 
 5. **Open your browser** at `http://127.0.0.1:3000/`
 
-**Note:** Debug mode is enabled by default, so the server will automatically restart when you make changes to Python files.
+**Note:** Debug mode is enabled by default, so the server will automatically
+restart when you make changes to Python files.
 
 ### Requirements
 
@@ -91,40 +94,62 @@ Expected Text → Epitran → IPA Phonemes                     ↓
 
 ### How It Works: Detailed Explanation
 
-The pronunciation scoring system uses a multi-step pipeline that combines speech recognition, phonetic analysis, and intelligent word alignment:
+The pronunciation scoring system uses a multi-step pipeline that combines speech
+recognition, phonetic analysis, and intelligent word alignment:
 
 #### Step 1: Speech Recognition
-When you record your pronunciation, the audio is sent to **Whisper ASR** (Automatic Speech Recognition), OpenAI's multilingual speech recognition model. Whisper transcribes your Korean speech into text, attempting to understand what words you actually said.
+
+When you record your pronunciation, the audio is sent to **Whisper ASR**
+(Automatic Speech Recognition), OpenAI's multilingual speech recognition model.
+Whisper transcribes your Korean speech into text, attempting to understand what
+words you actually said.
 
 **Example:**
+
 - Expected: "안녕하세요"
 - You said: "안녕세요" (missing 하)
 - Whisper transcribes: "안녕세요"
 
 #### Step 2: Phonetic Conversion (IPA)
-Both the expected sentence and your transcribed speech are converted to **IPA (International Phonetic Alphabet)** notation using the Epitran library. IPA represents the actual sounds of the language, which is crucial for accurate pronunciation comparison.
 
-**Why IPA?** Korean spelling doesn't always match pronunciation due to phonological rules. IPA captures how words actually sound.
+Both the expected sentence and your transcribed speech are converted to **IPA
+(International Phonetic Alphabet)** notation using the Epitran library. IPA
+represents the actual sounds of the language, which is crucial for accurate
+pronunciation comparison.
+
+**Why IPA?** Korean spelling doesn't always match pronunciation due to
+phonological rules. IPA captures how words actually sound.
 
 **Example:**
+
 - Text: "안녕하세요"
 - IPA: "annjʌŋhasʰejo"
 
 This conversion ensures we're comparing actual pronunciation, not just spelling.
 
 #### Step 3: Word Alignment (DTW)
-The system uses **Dynamic Time Warping (DTW)**, a sophisticated algorithm that intelligently matches the words you spoke with the expected words. This handles cases where you might have:
+
+The system uses **Dynamic Time Warping (DTW)**, a sophisticated algorithm that
+intelligently matches the words you spoke with the expected words. This handles
+cases where you might have:
+
 - Skipped a word
 - Added an extra word
 - Said words in a slightly different order
 - Mispronounced individual words
 
-DTW finds the best possible alignment between what you said and what was expected, so each spoken word is matched to its corresponding expected word.
+DTW finds the best possible alignment between what you said and what was
+expected, so each spoken word is matched to its corresponding expected word.
 
 #### Step 4: Phoneme-Level Comparison
-For each aligned word pair, the system calculates similarity using the **Levenshtein Edit Distance** algorithm. This measures how many individual sound changes (insertions, deletions, substitutions) would be needed to transform your pronunciation into the correct pronunciation.
+
+For each aligned word pair, the system calculates similarity using the
+**Levenshtein Edit Distance** algorithm. This measures how many individual sound
+changes (insertions, deletions, substitutions) would be needed to transform your
+pronunciation into the correct pronunciation.
 
 **Example:**
+
 - Expected (IPA): "hasʰejo" (하세요)
 - You said (IPA): "hasejo" (하세요, but without aspiration)
 - Edit distance: 1 change needed (add aspiration to 's')
@@ -133,7 +158,9 @@ For each aligned word pair, the system calculates similarity using the **Levensh
 The fewer changes needed, the higher your pronunciation accuracy for that word.
 
 #### Step 5: Overall Scoring
+
 The system calculates:
+
 1. **Word-level accuracy**: Each word gets a score based on phoneme similarity
 2. **Overall accuracy**: Average across all words in the sentence
 3. **Color coding**: Visual feedback helps you quickly identify problem areas
@@ -142,7 +169,9 @@ The system calculates:
    - Red: Needs work (below 60%)
 
 #### Step 6: Visual Feedback
+
 Results are displayed with:
+
 - Color-coded words showing which parts were pronounced well
 - Overall percentage score
 - Cumulative score tracking for motivation
@@ -151,23 +180,32 @@ Results are displayed with:
 
 **Phoneme-based comparison** is more accurate than simple word matching because:
 
-1. **Language-specific**: IPA captures Korean-specific sounds that don't exist in other languages
-2. **Pronunciation rules**: Handles Korean phonological rules (e.g., 받침 final consonants, sound changes)
-3. **Granular feedback**: Identifies exactly which sounds need improvement, not just wrong words
-4. **Objective measurement**: Uses mathematical distance metrics, not subjective judgment
-5. **Forgiving alignment**: DTW ensures you get credit for words you pronounce correctly, even if you skip or add words
+1. **Language-specific**: IPA captures Korean-specific sounds that don't exist
+   in other languages
+2. **Pronunciation rules**: Handles Korean phonological rules (e.g., 받침 final
+   consonants, sound changes)
+3. **Granular feedback**: Identifies exactly which sounds need improvement, not
+   just wrong words
+4. **Objective measurement**: Uses mathematical distance metrics, not subjective
+   judgment
+5. **Forgiving alignment**: DTW ensures you get credit for words you pronounce
+   correctly, even if you skip or add words
 
 **Limitations to be aware of:**
+
 - Background noise can affect speech recognition accuracy
 - Very strong accents might be transcribed differently than intended
 - The system evaluates pronunciation, not grammar or naturalness
-- Scores are comparative - they measure similarity to expected pronunciation, not absolute correctness
+- Scores are comparative - they measure similarity to expected pronunciation,
+  not absolute correctness
 
 ## Scoring System
 
 ### Understanding Your Score
 
-Your pronunciation accuracy is calculated based on phoneme-level similarity between your speech and the correct pronunciation. The score reflects how closely your pronunciation matches native Korean pronunciation patterns.
+Your pronunciation accuracy is calculated based on phoneme-level similarity
+between your speech and the correct pronunciation. The score reflects how
+closely your pronunciation matches native Korean pronunciation patterns.
 
 #### Score Ranges
 
@@ -175,12 +213,10 @@ Your pronunciation accuracy is calculated based on phoneme-level similarity betw
   - Your pronunciation is highly accurate
   - Only minor differences from native pronunciation
   - Native speakers would easily understand you
-  
 - **60-79% (Orange)**: Good pronunciation with room for improvement
   - Generally understandable pronunciation
   - Some phonemes or sound patterns need refinement
   - May have slight accent or unclear articulation
-  
 - **Below 60% (Red)**: Needs significant improvement
   - Major pronunciation issues that could affect understanding
   - Missing or incorrect phonemes
@@ -189,9 +225,11 @@ Your pronunciation accuracy is calculated based on phoneme-level similarity betw
 #### What Affects Your Score?
 
 1. **Phoneme accuracy**: Each Korean sound must be pronounced correctly
-2. **Aspiration**: Korean distinguishes between aspirated (ㅋ, ㅌ, ㅍ, ㅊ) and unaspirated consonants (ㄱ, ㄷ, ㅂ, ㅈ)
+2. **Aspiration**: Korean distinguishes between aspirated (ㅋ, ㅌ, ㅍ, ㅊ) and
+   unaspirated consonants (ㄱ, ㄷ, ㅂ, ㅈ)
 3. **Vowel quality**: Korean has vowel distinctions not found in many languages
-4. **Word completeness**: Skipping syllables or words significantly reduces score
+4. **Word completeness**: Skipping syllables or words significantly reduces
+   score
 5. **Speech clarity**: Background noise or mumbling can affect recognition
 
 ### Progress Tracking
@@ -237,7 +275,9 @@ sentence
 당신의 한국어 문장을 여기에 추가하세요
 ```
 
-**Note:** The sentence counter automatically updates based on the number of sentences in your CSV file. Add or remove sentences freely - no code changes needed!
+**Note:** The sentence counter automatically updates based on the number of
+sentences in your CSV file. Add or remove sentences freely - no code changes
+needed!
 
 ### Adjusting Scoring Thresholds
 
@@ -264,12 +304,15 @@ _Note: Chrome/Edge recommended for best Korean TTS quality_
 
 - Ensure your browser supports the Web Speech API
 - Check system volume and browser permissions
-- Korean TTS voice may need to be installed (usually automatic in modern browsers)
+- Korean TTS voice may need to be installed (usually automatic in modern
+  browsers)
 
 ### Changes not appearing
 
-- **Python files** (.py): Server auto-reloads thanks to debug mode - just save and wait a moment
-- **HTML/CSS/JS files**: Just **hard refresh** your browser: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows/Linux)
+- **Python files** (.py): Server auto-reloads thanks to debug mode - just save
+  and wait a moment
+- **HTML/CSS/JS files**: Just **hard refresh** your browser: `Cmd+Shift+R` (Mac)
+  or `Ctrl+Shift+R` (Windows/Linux)
 - No need to manually restart the server!
 
 ### Audio processing is slow
@@ -288,17 +331,20 @@ _Note: Chrome/Edge recommended for best Korean TTS quality_
 
 ### Development Server
 
-For testing or single-user demos (e.g., Capstone projects), the built-in Flask server is sufficient:
+For testing or single-user demos (e.g., Capstone projects), the built-in Flask
+server is sufficient:
 
 ```bash
 python3 webApp.py
 ```
 
-Debug mode is enabled by default for faster development (auto-reload on file changes).
+Debug mode is enabled by default for faster development (auto-reload on file
+changes).
 
 ### Production Deployment
 
-**Important:** For production, consider disabling debug mode in `webApp.py` by changing `debug=True` to `debug=False` for security and performance.
+**Important:** For production, consider disabling debug mode in `webApp.py` by
+changing `debug=True` to `debug=False` for security and performance.
 
 ### System Requirements
 
@@ -316,4 +362,5 @@ See [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- Original project by [Thiago Lobato](https://github.com/Thiagohgl/ai-pronunciation-trainer)
+- Original project by
+  [Thiago Lobato](https://github.com/Thiagohgl/ai-pronunciation-trainer)
