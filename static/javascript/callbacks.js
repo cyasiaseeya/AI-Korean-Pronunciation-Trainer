@@ -184,6 +184,11 @@ const getNextSample = async () => {
           " | Score: " +
           currentScore.toString();
         currentSample += 1;
+        
+        // 마지막 문장 이후 처음으로 돌아가기
+        if (currentSample >= totalSentences) {
+          currentSample = 0;
+        }
 
         document.getElementById("main_title").innerHTML = page_title;
 

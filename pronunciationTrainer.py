@@ -16,9 +16,48 @@ from string import punctuation
 import time
 
 
-def getTrainer(language: str):
+def getTrainer(language: str, enable_noise_reduction: bool = None, 
+               vad_aggressiveness: str = None, model_size: str = None):
+    """
+    발음 트레이너 인스턴스를 생성합니다.
+    
+    Args:
+        language: 언어 코드 ('ko'만 지원)
+        enable_noise_reduction: 노이즈 감소 활성화 여부 (None이면 config.py에서 읽음)
+        vad_aggressiveness: VAD 민감도 (None이면 config.py에서 읽음)
+        model_size: Whisper 모델 크기 (None이면 config.py에서 읽음)
+    
+    Returns:
+        PronunciationTrainer 인스턴스
+    """
+    # 설정 파일에서 기본값 가져오기
+    try:
+        import config
+        cfg = config.get_config()
+        # None인 파라미터만 config에서 읽어옴 (명시적으로 전달된 값은 우선순위가 높음)
+        if enable_noise_reduction is None:
+            enable_noise_reduction = cfg.get('enable_noise_reduction', True)
+        if vad_aggressiveness is None:
+            vad_aggressiveness = cfg.get('vad_aggressiveness', "moderate")
+        if model_size is None:
+            model_size = cfg.get('model_size', "small")
+    except ImportError:
+        # config.py가 없으면 하드코딩된 기본값 사용
+        if enable_noise_reduction is None:
+            enable_noise_reduction = True
+        if vad_aggressiveness is None:
+            vad_aggressiveness = "moderate"
+        if model_size is None:
+            model_size = "small"
 
-    asr_model = mo.getASRModel(language,use_whisper=True)
+    asr_model = mo.getASRModel(
+        language, 
+        use_whisper=True,
+        use_faster_whisper=True,
+        model_size=model_size,
+        enable_noise_reduction=enable_noise_reduction,
+        vad_aggressiveness=vad_aggressiveness
+    )
     
     if language == 'ko':
         phonem_converter = RuleBasedModels.KoreanPhonemConverter()

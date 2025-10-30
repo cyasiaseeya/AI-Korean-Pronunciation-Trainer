@@ -3,6 +3,9 @@ torch
 torchaudio 
 transformers
 
+# Whisper models
+faster-whisper
+
 # Audio processing
 soundfile 
 audioread
