@@ -47,6 +47,7 @@ let soundFileBad = null;
 var synth = window.speechSynthesis;
 let voice_idx = 0;
 let voice_synth = null;
+let ttsSpeed = 0.3; // TTS 속도: 0.1 (매우 느림) ~ 2.0 (매우 빠름), 기본값: 0.7
 
 //############################ UI 일반 제어 함수 ###################
 const unblockUI = () => {
@@ -575,7 +576,7 @@ const playWithMozillaApi = (text) => {
     utterThis.voice = voice_synth;
   }
 
-  utterThis.rate = 0.7;
+  utterThis.rate = ttsSpeed;
   utterThis.onend = function (event) {
     unblockUI();
   };
@@ -688,6 +689,17 @@ const initializeServer = async () => {
   }
 };
 
+// TTS 속도 조정 함수 (브라우저 콘솔에서 사용 가능)
+window.setTTSSpeed = (speed) => {
+  if (speed < 0.1 || speed > 2.0) {
+    console.warn("TTS speed must be between 0.1 and 2.0");
+    return;
+  }
+  ttsSpeed = speed;
+  console.log(`TTS speed set to ${speed}`);
+  console.log("Speed guide: 0.1 = very slow, 0.5 = slow, 0.7 = default, 1.0 = normal, 1.5 = fast, 2.0 = very fast");
+};
+
 // 페이지 로드 시 한국어 음성 초기화
 if (synth.onvoiceschanged !== undefined) {
   synth.onvoiceschanged = () => {
@@ -696,3 +708,7 @@ if (synth.onvoiceschanged !== undefined) {
 }
 // 음성이 이미 로드된 경우를 대비해 즉시 시도
 changeLanguage("ko", false);
+
+// TTS 속도 조정 방법을 콘솔에 출력
+console.log("To change TTS speed, use: setTTSSpeed(0.5) for slower or setTTSSpeed(1.0) for normal speed");
+console.log("Current TTS speed:", ttsSpeed);
