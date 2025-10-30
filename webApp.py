@@ -10,7 +10,6 @@ import os
 from flask_cors import CORS
 import json
 
-import lambdaTTS
 import lambdaSpeechToScore
 import lambdaGetSample
 
@@ -24,12 +23,6 @@ rootPath = ''
 @app.route(rootPath+'/')
 def main():
     return render_template('main.html')
-
-
-@app.route(rootPath+'/getAudioFromText', methods=['POST'])
-def getAudioFromText():
-    event = {'body': json.dumps(request.get_json(force=True))}
-    return lambdaTTS.lambda_handler(event, [])
 
 
 @app.route(rootPath+'/getSample', methods=['POST'])
